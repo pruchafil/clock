@@ -47,13 +47,21 @@ function drawClockHands() {
     const hours = time.getHours();
     const minutes = time.getMinutes();    
     const seconds = time.getSeconds();
+    const milliseconds = time.getMilliseconds();
 
-    const toHoursX = Math.sin(toRad((hours) * -fiveMunutesAngle + 180.0)) * hoursLen;
-    const toHoursY = Math.cos(toRad((hours) * -fiveMunutesAngle + 180.0)) * hoursLen;
-    const toMinutesX = Math.sin(toRad((minutes) * -minutesAngle + 180.0)) * minutesLen;
-    const toMinutesY = Math.cos(toRad((minutes) * -minutesAngle + 180.0)) * minutesLen;
-    const toSecondsX = Math.sin(toRad((seconds) * -minutesAngle + 180.0)) * secondsLen;
-    const toSecondsY = Math.cos(toRad((seconds) * -minutesAngle + 180.0)) * secondsLen;
+    const fullHoursAngle = hours * -fiveMunutesAngle;
+    const partHoursAngle = (minutes / 60.0) * fiveMunutesAngle;
+    const fullMinutesAngle = minutes * -minutesAngle;
+    const partMinutesAngle = (seconds / 60.0) * minutesAngle;
+    const fullSecondsAngle = seconds * -minutesAngle;
+    const partSecondsAngle = (milliseconds / 1000.0) * minutesAngle;
+
+    const toHoursX = Math.sin(toRad((fullHoursAngle - partHoursAngle) + 180.0)) * hoursLen;
+    const toHoursY = Math.cos(toRad((fullHoursAngle - partHoursAngle) + 180.0)) * hoursLen;
+    const toMinutesX = Math.sin(toRad((fullMinutesAngle - partMinutesAngle) + 180.0)) * minutesLen;
+    const toMinutesY = Math.cos(toRad((fullMinutesAngle - partMinutesAngle) + 180.0)) * minutesLen;
+    const toSecondsX = Math.sin(toRad((fullSecondsAngle - partSecondsAngle) + 180.0)) * secondsLen;
+    const toSecondsY = Math.cos(toRad((fullSecondsAngle - partSecondsAngle) + 180.0)) * secondsLen;
 
     canvas.drawLine(Colors.YELLOW, {x: midX, y: midY}, {x: toHoursX + midX, y: toHoursY + + midY}); // hours
     canvas.drawLine(Colors.YELLOW, {x: midX, y: midY}, {x: toMinutesX + midX, y: toMinutesY + + midY}); // minutes
