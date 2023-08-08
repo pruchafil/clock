@@ -10,6 +10,7 @@ const secondsLen = 300;
 const r = 350;
 const smallR = r - 10;
 const bigR = r - 40;
+const circleDotsSpace = 1.0;
 
 const minutesAngle = 6.0;
 const fiveMunutesAngle = 30.0;
@@ -21,23 +22,34 @@ function toRad(degree) {
 }
 
 function drawClock() {
-    for (let i = 0.0; i < 360.0; i += minutesAngle) {
-        const isHour = i % fiveMunutesAngle === 0.0;
+    for (let i = 0.0; i < 360.0; i += circleDotsSpace) {
+        if (i % minutesAngle === 0.0 || i % fiveMunutesAngle === 0.0) { // we draw one or five minutes line
+            const isHour = i % fiveMunutesAngle === 0.0;
 
-        const sin = Math.sin(toRad(i));
-        const cos = Math.cos(toRad(i));
+            const sin = Math.sin(toRad(i));
+            const cos = Math.cos(toRad(i));
+    
+            let fromX = sin * (isHour ?  bigR : smallR); // longer or shorter line
+            let fromY = cos * (isHour ?  bigR : smallR);
+            let toX = sin * r;
+            let toY = cos * r;
+    
+            fromX += midX;
+            fromY += midY;
+            toX += midX;
+            toY += midY;
+    
+            canvas.drawLine(isHour ? Colors.CYAN : Colors.LIGHT_BLUE, { x:fromX, y:fromY }, { x:toX, y: toY });
+        } else { // we draw a dot
+            const sin = Math.sin(toRad(i));
+            const cos = Math.cos(toRad(i));
+            let toX = sin * r;
+            let toY = cos * r;
+            toX += midX;
+            toY += midY;
 
-        let fromX = sin * (isHour ?  bigR : smallR);
-        let fromY = cos * (isHour ?  bigR : smallR);
-        let toX = sin * r;
-        let toY = cos * r;
-
-        fromX += midX;
-        fromY += midY;
-        toX += midX;
-        toY += midY;
-
-        canvas.drawLine(isHour ? Colors.CYAN : Colors.LIGHT_BLUE, { x:fromX, y:fromY }, { x:toX, y: toY });
+            canvas.drawPoint(Colors.WHITE, {x: toX, y: toY});
+        }
     }
 }
 
@@ -49,23 +61,30 @@ function drawClockHands() {
     const seconds = time.getSeconds();
     const milliseconds = time.getMilliseconds();
 
-    const fullHoursAngle = hours * -fiveMunutesAngle;
-    const partHoursAngle = (minutes / 60.0) * fiveMunutesAngle;
+    const fullHoursAngle = hours * -fiveMunutesAngle;               // angle pointing to line
+    const partHoursAngle = (minutes / 60.0) * fiveMunutesAngle;     // angle between two lines
     const fullMinutesAngle = minutes * -minutesAngle;
     const partMinutesAngle = (seconds / 60.0) * minutesAngle;
     const fullSecondsAngle = seconds * -minutesAngle;
     const partSecondsAngle = (milliseconds / 1000.0) * minutesAngle;
 
-    const toHoursX = Math.sin(toRad((fullHoursAngle - partHoursAngle) + 180.0)) * hoursLen;
-    const toHoursY = Math.cos(toRad((fullHoursAngle - partHoursAngle) + 180.0)) * hoursLen;
-    const toMinutesX = Math.sin(toRad((fullMinutesAngle - partMinutesAngle) + 180.0)) * minutesLen;
-    const toMinutesY = Math.cos(toRad((fullMinutesAngle - partMinutesAngle) + 180.0)) * minutesLen;
-    const toSecondsX = Math.sin(toRad((fullSecondsAngle - partSecondsAngle) + 180.0)) * secondsLen;
-    const toSecondsY = Math.cos(toRad((fullSecondsAngle - partSecondsAngle) + 180.0)) * secondsLen;
+    let toHoursX = Math.sin(toRad((fullHoursAngle - partHoursAngle) + 180.0)) * hoursLen;
+    let toHoursY = Math.cos(toRad((fullHoursAngle - partHoursAngle) + 180.0)) * hoursLen;
+    let toMinutesX = Math.sin(toRad((fullMinutesAngle - partMinutesAngle) + 180.0)) * minutesLen;
+    let toMinutesY = Math.cos(toRad((fullMinutesAngle - partMinutesAngle) + 180.0)) * minutesLen;
+    let toSecondsX = Math.sin(toRad((fullSecondsAngle - partSecondsAngle) + 180.0)) * secondsLen;
+    let toSecondsY = Math.cos(toRad((fullSecondsAngle - partSecondsAngle) + 180.0)) * secondsLen;
 
-    canvas.drawLine(Colors.YELLOW, {x: midX, y: midY}, {x: toHoursX + midX, y: toHoursY + + midY}); // hours
-    canvas.drawLine(Colors.YELLOW, {x: midX, y: midY}, {x: toMinutesX + midX, y: toMinutesY + + midY}); // minutes
-    canvas.drawLine(Colors.RED, {x: midX, y: midY}, {x: toSecondsX + midX, y: toSecondsY + + midY}); // seconds
+    toHoursX += midX;
+    toHoursY += midY;
+    toMinutesX += midX;
+    toMinutesY += midY;
+    toSecondsX += midX;
+    toSecondsY += midY;
+
+    canvas.drawLine(Colors.YELLOW, {x: midX, y: midY}, {x: toHoursX, y: toHoursY });         // hours
+    canvas.drawLine(Colors.YELLOW, {x: midX, y: midY}, {x: toMinutesX, y: toMinutesY });     // minutes
+    canvas.drawLine(Colors.RED, {x: midX, y: midY}, {x: toSecondsX, y: toSecondsY });        // seconds
 }
 
 canvas.loop(() => {
